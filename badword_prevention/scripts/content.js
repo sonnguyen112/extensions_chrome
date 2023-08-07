@@ -1,3 +1,5 @@
+var PREVCONTENT = ""
+
 function getText() {
     return document.body.innerText;
 }
@@ -8,11 +10,13 @@ function replaceText(oldWord, newWord) {
     const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
     console.log("Range")
     console.log(range)
-    var startContainer = range.startContainer
-    var startOffset = range.startOffset
-    var endContainer = range.endContainer
-    var endOffset = range.endOffset
-    
+    if (range){
+        var startContainer = range.startContainer
+        var startOffset = range.startOffset
+        var endContainer = range.endContainer
+        var endOffset = range.endOffset
+    }
+
     // Replace text
     const treeWalker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
     const textNodes = [];
@@ -31,22 +35,22 @@ function replaceText(oldWord, newWord) {
         backUpRange.setStart(startContainer, startOffset)
         backUpRange.setEnd(endContainer, endOffset)
         selection.removeAllRanges();
+        console.log("Backup range")
+        console.log(backUpRange)
         selection.addRange(backUpRange);
     }
 }
 
-function modelSimulator(word){
-    var modelSimulatorMap = {
-        "dm": "***",
-        "dit me m": "*** m"
-    }
 
-    var wordProcessed = word.toLowerCase()
+function badWordProcessReplace(listSentence){
+    var result = []
 
-    if (wordProcessed in modelSimulatorMap){
-        replaceText(wordProcessed, modelSimulatorMap[wordProcessed])
+    // your code
+
+    result = ["dm", "dit me"]
+    for (var i = 0; i < result.length; i++){
+        replaceText(result[i], "*".repeat(result[i].length))
     }
-    console.log("done")
 }
 
 setInterval(function () {
@@ -57,19 +61,19 @@ setInterval(function () {
             console.log(state)
             if (state === "ON") {
                 var allText = getText()
-                // console.log(allText)
-                var textList = allText.split("\n")
-                var textListAlpha = []
-                for (var i = 0; i < textList.length; i++) {
-                    if (/^[ ]*$/.test(textList[i]) == false) {
-                        textListAlpha.push(textList[i])
+                if (allText !== PREVCONTENT){
+                    // console.log(allText)
+                    PREVCONTENT = allText
+                    var textList = allText.split("\n")
+                    var textListAlpha = []
+                    for (var i = 0; i < textList.length; i++) {
+                        if (/^[ ]*$/.test(textList[i]) == false) {
+                            textListAlpha.push(textList[i])
+                        }
                     }
-                }
-                console.log(textListAlpha)
-                for (var i = 0; i < textListAlpha.length; i++) {
-                    modelSimulator(textListAlpha[i])
+                    badWordProcessReplace(textListAlpha)
                 }
             }
         });
     }
-}, 2000);
+}, 1000);
